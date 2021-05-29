@@ -50,8 +50,6 @@ Text GLabel 2450 2500 2    50   Input ~ 0
 scl
 Text GLabel 2450 2600 2    50   Input ~ 0
 sda
-Text GLabel 2950 2400 2    50   Input ~ 0
-sda
 $Comp
 L power:GND #PWR0106
 U 1 1 60B432E9
@@ -116,30 +114,6 @@ din
 Text GLabel 2450 2800 2    50   Input ~ 0
 din
 $Comp
-L power:GND #PWR0104
-U 1 1 60B3EC77
-P 2950 2200
-F 0 "#PWR0104" H 2950 1950 50  0001 C CNN
-F 1 "GND" V 2955 2072 50  0000 R CNN
-F 2 "" H 2950 2200 50  0001 C CNN
-F 3 "" H 2950 2200 50  0001 C CNN
-	1    2950 2200
-	0    -1   -1   0   
-$EndComp
-Text GLabel 2950 2300 2    50   Input ~ 0
-scl
-$Comp
-L power:+5V #PWR0103
-U 1 1 60B19272
-P 2950 2100
-F 0 "#PWR0103" H 2950 1950 50  0001 C CNN
-F 1 "+5V" V 2965 2228 50  0000 L CNN
-F 2 "" H 2950 2100 50  0001 C CNN
-F 3 "" H 2950 2100 50  0001 C CNN
-	1    2950 2100
-	0    1    1    0   
-$EndComp
-$Comp
 L power:+5V #PWR0105
 U 1 1 60B432E3
 P 2950 2700
@@ -151,25 +125,51 @@ F 3 "" H 2950 2700 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Connector:Conn_01x04_Male J1
-U 1 1 60B2400F
-P 2750 2200
-F 0 "J1" H 2858 2481 50  0000 C CNN
-F 1 "BMP280" H 2858 2390 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 2750 2200 50  0001 C CNN
-F 3 "~" H 2750 2200 50  0001 C CNN
-	1    2750 2200
-	1    0    0    -1  
-$EndComp
-$Comp
 L Connector:Conn_01x08_Male J2
 U 1 1 60B25397
 P 2750 3000
 F 0 "J2" H 2858 3481 50  0000 C CNN
 F 1 "CCS811" H 2858 3390 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 2750 3000 50  0001 C CNN
+F 2 "Monitor:CCS811" H 2750 3000 50  0001 C CNN
 F 3 "~" H 2750 3000 50  0001 C CNN
 	1    2750 3000
 	1    0    0    -1  
 $EndComp
+$Comp
+L Connector:Conn_01x06_Male J1
+U 1 1 60B1AB60
+P 2750 2100
+F 0 "J1" H 2858 2481 50  0000 C CNN
+F 1 "BMP280" H 2858 2390 50  0000 C CNN
+F 2 "Monitor:BMP280" H 2750 2100 50  0001 C CNN
+F 3 "~" H 2750 2100 50  0001 C CNN
+	1    2750 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR01
+U 1 1 60B1CACD
+P 2950 1900
+F 0 "#PWR01" H 2950 1750 50  0001 C CNN
+F 1 "+3.3V" V 2965 2028 50  0000 L CNN
+F 2 "" H 2950 1900 50  0001 C CNN
+F 3 "" H 2950 1900 50  0001 C CNN
+	1    2950 1900
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR02
+U 1 1 60B1D47D
+P 2950 2000
+F 0 "#PWR02" H 2950 1750 50  0001 C CNN
+F 1 "GND" V 2955 1872 50  0000 R CNN
+F 2 "" H 2950 2000 50  0001 C CNN
+F 3 "" H 2950 2000 50  0001 C CNN
+	1    2950 2000
+	0    -1   -1   0   
+$EndComp
+Text GLabel 2950 2100 2    50   Input ~ 0
+scl
+Text GLabel 2950 2200 2    50   Input ~ 0
+sda
 $EndSCHEMATC
