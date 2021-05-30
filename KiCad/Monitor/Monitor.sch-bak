@@ -172,4 +172,15 @@ Text GLabel 2950 2100 2    50   Input ~ 0
 scl
 Text GLabel 2950 2200 2    50   Input ~ 0
 sda
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60B22B77
+P 2150 2000
+F 0 "#PWR?" H 2150 1850 50  0001 C CNN
+F 1 "+3.3V" H 2165 2173 50  0000 C CNN
+F 2 "" H 2150 2000 50  0001 C CNN
+F 3 "" H 2150 2000 50  0001 C CNN
+	1    2150 2000
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
