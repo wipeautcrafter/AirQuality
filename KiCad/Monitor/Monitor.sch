@@ -114,17 +114,6 @@ din
 Text GLabel 2450 2800 2    50   Input ~ 0
 din
 $Comp
-L power:+5V #PWR0105
-U 1 1 60B432E3
-P 2950 2700
-F 0 "#PWR0105" H 2950 2550 50  0001 C CNN
-F 1 "+5V" V 2965 2828 50  0000 L CNN
-F 2 "" H 2950 2700 50  0001 C CNN
-F 3 "" H 2950 2700 50  0001 C CNN
-	1    2950 2700
-	0    1    1    0   
-$EndComp
-$Comp
 L Connector:Conn_01x08_Male J2
 U 1 1 60B25397
 P 2750 3000
@@ -182,5 +171,16 @@ F 2 "" H 2150 2000 50  0001 C CNN
 F 3 "" H 2150 2000 50  0001 C CNN
 	1    2150 2000
 	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60C1C40B
+P 2950 2700
+F 0 "#PWR?" H 2950 2550 50  0001 C CNN
+F 1 "+3.3V" V 2965 2828 50  0000 L CNN
+F 2 "" H 2950 2700 50  0001 C CNN
+F 3 "" H 2950 2700 50  0001 C CNN
+	1    2950 2700
+	0    1    1    0   
 $EndComp
 $EndSCHEMATC
