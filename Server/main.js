@@ -1,10 +1,13 @@
 const express = require("express");
+const fs = require("fs");
+
+const names = require("./names.json");
 const app = express();
 
-const _clients = require("./clients.json");
 const clients = {};
 
-function parseData(query) {
+// verify function
+function parse(query) {
     if(!query.id) return false;
     if(!query.ppm) return false;
     if(!query.temp) return false;
@@ -12,36 +15,59 @@ function parseData(query) {
     if(!query.ppm.match(/[0-9\.]+/)) return false;
     if(!query.temp.match(/[0-9\.]+/)) return false;
 
-    if(!_clients[query.id]) return false;
-    const id = _clients[query.id];
+    return {
+        id: query.id,
+        ppm: query.ppm,
+        temp: query.temp,
+        time: Date.now()
+    };
+}
 
-    clients[id] = {
-        "ppm": parseFloat(query.ppm),
-        "temp": parseFloat(query.temp),
-        "time": Date.now()
+// update function
+function update(data) {
+    if(!data) return false;
+    const name = names[data.id];
+
+    clients[data.id] = {
+        name: name,
+        ppm: data.ppm,
+        temp: data.temp,
+        time: Date.now()
     };
 
+    // append to log file
+    const contents = "\n" + [
+        new Date().toISOString(),
+        data.ppm, data.temp
+    ].join(" ");
+
+    fs.appendFile(`log/${data.id}.log`, contents, () => {});
+    
     return true;
 }
 
+// express event listeners
 app.get("/update", (req, res) => {
-    if(!parseData(req.query)) {
+    const data = parse(req.query);
+
+    if(!update(data)) {
         res.status(400);
     }
 
     res.send();
 });
 
-function update() {
-    Object.keys(clients).forEach(id => {
-        if(clients[id].time + 15000 < Date.now()) delete clients[id];
+// interval
+setInterval(() => {
+    // remove "old" clients
+    Object.keys(clients).forEach(c => {
+        if(Date.now() - clients[c].time > 15000) {
+            delete clients[c];
+        }
     });
 
     console.clear();
     console.dir(clients);
-}
+}, 1000);
 
 app.listen(8808);
-
-setInterval(update, 1000);
-update();

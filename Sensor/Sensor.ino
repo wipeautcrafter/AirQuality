@@ -16,9 +16,9 @@
 
 // DEFINE WIFI SETTINGS
 
-#define WIFI_NAME "DJOAMERSFOORT"
-#define WIFI_PASS "l4anp4r7y"
-#define SERVER_IP "100.64.0.180:8808"
+#define WIFI_NAME "De Beefjes"
+#define WIFI_PASS "An1Wi2Ti3"
+#define SERVER_IP "192.168.2.42:8808"
 
 // CODE
 
@@ -31,15 +31,13 @@ Adafruit_NeoPixel led(1, PIN_LED, NEO_GRB + NEO_KHZ800);
 
 // error function
 
-void error() {
-  while(true) {
-    led.setPixelColor(0, led.Color(255, 0, 0));
-    led.show();
-    delay(500);
-    led.setPixelColor(0, led.Color(0, 0, 0));
-    led.show();
-    delay(500); 
-  }
+void flash(int r, int g, int b, int d) {
+  led.setPixelColor(0, led.Color(r, g, b));
+  led.show();
+  delay(d);
+  led.setPixelColor(0, led.Color(0, 0, 0));
+  led.show();
+  delay(d);
 }
 
 // initialize connection
@@ -50,6 +48,7 @@ float intensity;
 String mac;
 
 void setup() {
+  Serial.begin(9600);
   bool success = true;
   
   led.begin();
@@ -61,37 +60,37 @@ void setup() {
   if(!ccs.begin(CCS_ADDR)) success = false;
   if(!bmp.begin(BMP_ADDR)) success = false;
 
-  if(!success) error();
+  if(!success) {
+    while(true) flash(255, 0, 0, 500);
+  }
 
   // enable wifi
   WiFi.begin(WIFI_NAME, WIFI_PASS);
   
   while (WiFi.status() != WL_CONNECTED) {
-      led.setPixelColor(0, led.Color(0, 0, 255));
-      led.show();
-      delay(500);
-      led.setPixelColor(0, led.Color(0, 0, 0));
-      led.show();
-      delay(500); 
+      flash(0, 0, 255, 500);
   }
-
+  
+  // log mac in console for setup
   mac = WiFi.macAddress();
+  Serial.println(mac);
+  Serial.end();
 }
 
 // send data to server
 
-void sendUpdate() {
+bool sendUpdate() {
   HTTPClient http;
   String query = "?id=" + mac + "&ppm=" + ppm + "&temp=" + temp;
   http.begin(client, "http://" SERVER_IP "/update" + query);
   int code = http.GET();
-
-  if(code != HTTP_CODE_OK) error();
   http.end();
+
+  return code == HTTP_CODE_OK;
 }
 
 void updateLed() {
-  intensity = ppm / CO2_DANGER * 255;
+  intensity = min((ppm / CO2_DANGER) * 255, (float) 255);
 
   led.setPixelColor(0, led.Color(intensity, 255 - intensity, 0));
   led.show();
@@ -106,9 +105,13 @@ void loop() {
     if(!ccs.readData()) {
       ppm = ccs.geteCO2();
       temp = bmp.readTemperature();
-      
+
+      // try sending and blink on error
+      while(!sendUpdate()) {
+        flash(255, 0, 0, 250);
+      }
+
       updateLed();
-      sendUpdate();
     }
   }
   
