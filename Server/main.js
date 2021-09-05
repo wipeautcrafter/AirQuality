@@ -66,8 +66,8 @@ setInterval(() => {
         }
     });
 
-    console.clear();
-    console.dir(clients);
+    // console.clear();
+    // console.dir(clients);
 }, 1000);
 
 app.listen(8808);
