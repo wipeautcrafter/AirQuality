@@ -16,9 +16,9 @@
 
 // DEFINE WIFI SETTINGS
 
-#define WIFI_NAME "De Beefjes"
-#define WIFI_PASS "An1Wi2Ti3"
-#define SERVER_IP "192.168.2.42:8808"
+#define WIFI_NAME "Farel-gasten"
+#define WIFI_PASS "dPP924fR"
+#define SERVER_IP "wipeaut.nl:8808"
 
 // CODE
 
@@ -46,6 +46,8 @@ float ppm;
 float temp;
 float intensity;
 String mac;
+
+unsigned long interval;
 
 void setup() {
   Serial.begin(9600);
@@ -106,14 +108,16 @@ void loop() {
       ppm = ccs.geteCO2();
       temp = bmp.readTemperature();
 
-      // try sending and blink on error
-      while(!sendUpdate()) {
-        flash(255, 0, 0, 250);
+      if(abs(millis() - interval) > 10000) {
+        // try sending and blink on error
+        while(!sendUpdate()) {
+          flash(255, 0, 0, 250);
+        }
+
+        interval = millis();
       }
 
       updateLed();
     }
   }
-  
-  delay(10000);
 }
