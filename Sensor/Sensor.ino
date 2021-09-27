@@ -18,7 +18,7 @@
 
 #define WIFI_NAME "Farel-gasten"
 #define WIFI_PASS "dPP924fR"
-#define SERVER_IP "wipeaut.nl:8808"
+#define SERVER_IP "co2.wipeaut.nl"
 
 // CODE
 

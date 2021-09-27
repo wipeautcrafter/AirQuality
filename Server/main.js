@@ -11,12 +11,18 @@ function parse(query) {
     if(!query.id) return false;
     if(!query.ppm) return false;
     if(!query.temp) return false;
+    
+    if(!names[query.id]) {
+        console.log(`No name: ${query.id}`);
+        return false;
+    }
 
     if(!query.ppm.match(/[0-9\.]+/)) return false;
     if(!query.temp.match(/[0-9\.]+/)) return false;
 
     return {
         id: query.id,
+        name: names[query.id],
         ppm: query.ppm,
         temp: query.temp,
         time: Date.now()
@@ -28,12 +34,7 @@ function update(data) {
     if(!data) return false;
     const name = names[data.id];
 
-    clients[data.id] = {
-        name: name,
-        ppm: data.ppm,
-        temp: data.temp,
-        time: Date.now()
-    };
+    clients[data.id] = data;
 
     // append to log file
     const contents = "\n" + [
