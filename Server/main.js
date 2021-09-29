@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const fs = require("fs");
 
 const names = require("./names.json");
@@ -47,8 +48,20 @@ function update(data) {
     return true;
 }
 
+// check if within sleep time
+function shouldSleep() {
+    const h = new Date().getHours();
+    return h < 8 || h > 17;
+}
+
 // express event listeners
 app.get("/update", (req, res) => {
+    if(shouldSleep()) {
+        res.status(503);
+        res.send();
+        return;
+    }
+
     const data = parse(req.query);
 
     if(!update(data)) {
@@ -57,6 +70,28 @@ app.get("/update", (req, res) => {
 
     res.send();
 });
+
+// raw report page
+app.get("/raw", (req, res) => {
+    res.contentType("application/json");
+    res.send(JSON.stringify(clients));
+});
+
+// get sensor names
+app.get("/names", (req, res) => {
+    res.contentType("application/json");
+    res.send(JSON.stringify(names));
+});
+
+// get log
+app.get("/log/:id", (req, res) => {
+    const file = req.params.id.replace(/\./, "") + ".log";
+    const dir = path.join(__dirname, "log", file);
+    res.sendFile(dir);
+});
+
+// "clean" view
+app.use(express.static("html"));
 
 // interval
 setInterval(() => {

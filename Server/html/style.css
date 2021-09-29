@@ -1,0 +1,10 @@
+body {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    padding: 10px;
+}
+
+.sensor {
+    text-align: center;
+    padding: 15px;
+}
