@@ -8,7 +8,7 @@
 // DEFINE CO2 DANGER LEVELS
 
 #define CO2_DANGER 1500
-#define LED_INTENSITY 100
+#define LED_INTENSITY 50
 
 #define BMP_ADDR 0x76
 #define CCS_ADDR 0x5A
@@ -18,7 +18,22 @@
 
 #define WIFI_NAME "Farel-gasten"
 #define WIFI_PASS "dPP924fR"
+//#define WIFI_NAME "DJOAMERSFOORT"
+//#define WIFI_PASS "l4anp4r7y"
+
 #define SERVER_IP "co2.wipeaut.nl"
+
+#define SLEEP_TIME 2 * 60 * 1000 // 2 minutes
+
+// ERROR CODES
+
+#define ERROR_PIN LED_BUILTIN
+#define ERROR_TRIES 6
+
+#define ERROR_DELAY 5000
+#define ERROR_BLINK 500
+#define ERROR_SEND 2
+#define ERROR_SENSOR 3
 
 // CODE
 
@@ -29,18 +44,9 @@ Adafruit_CCS811 ccs;
 
 Adafruit_NeoPixel led(1, PIN_LED, NEO_GRB + NEO_KHZ800);
 
-// error function
-
-void flash(int r, int g, int b, int d) {
-  led.setPixelColor(0, led.Color(r, g, b));
-  led.show();
-  delay(d);
-  led.setPixelColor(0, led.Color(0, 0, 0));
-  led.show();
-  delay(d);
-}
-
 // initialize connection
+
+int tries = 0;
 
 float ppm;
 float temp;
@@ -49,46 +55,65 @@ String mac;
 
 unsigned long interval;
 
+// status code
+
+void errorCode(int n) {
+  for(int i = 0; i < n; i++) {
+    digitalWrite(ERROR_PIN, HIGH);
+    delay(ERROR_BLINK);
+    digitalWrite(ERROR_PIN, LOW);
+    delay(ERROR_BLINK);
+  }
+}
+
 void setup() {
-  Serial.begin(9600);
   bool success = true;
   
+  // set pins to output
+  pinMode(PIN_LED, OUTPUT);
+  pinMode(ERROR_PIN, OUTPUT);
+  digitalWrite(ERROR_PIN, LOW);
+
+  // setup led
   led.begin();
   led.setBrightness(LED_INTENSITY);
 
-  led.setPixelColor(0, led.Color(0, 0, 0));
+  // update leds
+  led.clear();
+  led.show();
 
   // enable sensors
   if(!ccs.begin(CCS_ADDR)) success = false;
   if(!bmp.begin(BMP_ADDR)) success = false;
-
+  
   if(!success) {
-    while(true) flash(255, 0, 0, 500);
+    while(true) {
+      errorCode(ERROR_SENSOR);
+      delay(ERROR_DELAY);
+    }
   }
 
   // enable wifi
   WiFi.begin(WIFI_NAME, WIFI_PASS);
   
   while (WiFi.status() != WL_CONNECTED) {
-      flash(0, 0, 255, 500);
+    errorCode(1);
   }
   
   // log mac in console for setup
   mac = WiFi.macAddress();
-  Serial.println(mac);
-  Serial.end();
 }
 
 // send data to server
 
-bool sendUpdate() {
+int sendUpdate() {
   HTTPClient http;
   String query = "?id=" + mac + "&ppm=" + ppm + "&temp=" + temp;
   http.begin(client, "http://" SERVER_IP "/update" + query);
   int code = http.GET();
   http.end();
 
-  return code == HTTP_CODE_OK;
+  return code;
 }
 
 void updateLed() {
@@ -108,16 +133,34 @@ void loop() {
       ppm = ccs.geteCO2();
       temp = bmp.readTemperature();
 
+      updateLed();
+
       if(abs(millis() - interval) > 10000) {
-        // try sending and blink on error
-        while(!sendUpdate()) {
-          flash(255, 0, 0, 250);
+        // try sending the sensor value
+        switch(sendUpdate()) {
+          case HTTP_CODE_OK:
+            tries = 0;
+            break;
+          case 503:
+            led.setPixelColor(0, led.Color(0, 0, 10));
+            led.show();
+            
+            delay(SLEEP_TIME);
+            break;
+          case 426:
+            ESP.restart();
+            break;
+          default:
+            errorCode(ERROR_SEND);
+
+            tries++;
+            if(tries >= ERROR_TRIES) ESP.restart();
+            
+            break;
         }
 
         interval = millis();
       }
-
-      updateLed();
     }
   }
 }
